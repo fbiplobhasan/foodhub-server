@@ -13,7 +13,7 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
+ enum Role {
   CUSTOMER
   PROVIDER
   ADMIN
@@ -37,18 +37,9 @@ enum PaymentStatus {
   PAID
 }
 
-model User {
-  id              String           @id @default(uuid())
-  email           String           @unique
-  name            String
-  password        String
-  role            Role             @default(CUSTOMER)
-  status          String           @default("ACTIVE")
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  providerProfile ProviderProfile?
-  orders          Order[]
-  reviews         Review[]
+enum UserStatus {
+  ACTIVE
+  BLOCK
 }
 
 model ProviderProfile {
@@ -65,6 +56,26 @@ model Category {
   id    String @id @default(uuid())
   name  String @unique
   meals Meal[]
+}
+
+model User {
+  id              String           @id
+  name            String
+  email           String
+  emailVerified   Boolean          @default(false)
+  image           String?
+  role            Role             @default(CUSTOMER)
+  status          UserStatus       @default(ACTIVE)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  sessions        Session[]
+  accounts        Account[]
+  providerProfile ProviderProfile?
+  orders          Order[]
+  reviews         Review[]
+
+  @@unique([email])
+  @@map("user")
 }
 
 model Meal {
@@ -105,4 +116,52 @@ model Review {
   mealId     String
   meal       Meal     @relation(fields: [mealId], references: [id])
   createdAt  DateTime @default(now())
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
 }
