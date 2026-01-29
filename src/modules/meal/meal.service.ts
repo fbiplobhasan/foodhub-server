@@ -36,6 +36,19 @@ const createMeal = async (payload: any, userId: string) => {
   }
 };
 
+const getAllMeals = async (categoryId?: string) => {
+  return await prisma.meal.findMany({
+    where: categoryId ? { categoryId } : {},
+    include: {
+      category: true,
+      provider: {
+        select: { storeName: true, address: true },
+      },
+    },
+  });
+};
+
 export const mealService = {
   createMeal,
+  getAllMeals,
 };

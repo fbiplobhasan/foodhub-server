@@ -21,6 +21,15 @@ const createCategory = async (name: string) => {
   });
 };
 
+const getAllCategories = async () => {
+  return await prisma.category.findMany({
+    include: { _count: { select: { meals: true } } } 
+  });
+};
+
+
+
 export const categoryService = {
   createCategory,
+  getAllCategories
 };

@@ -4,6 +4,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import cors from "cors";
 import { providerRoutes } from "./modules/provider/provider.route";
+import { categoryRoutes } from "./modules/category/category.route";
 
 const app = express();
 
@@ -21,6 +22,8 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use("/api/v1/meal", mealRouter);
 
 app.use("/api/v1/providers", providerRoutes);
+
+app.use("/api/v1/category", categoryRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Food Hub API" });

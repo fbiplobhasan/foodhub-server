@@ -34,6 +34,13 @@ const createMeal = async (req: Request, res: Response) => {
   }
 };
 
+const getAllMeals = async (req: Request, res: Response) => {
+  const { categoryId } = req.query;
+  const result = await mealService.getAllMeals(categoryId as string);
+  res.status(200).json({ success: true, data: result });
+};
+
 export const mealController = {
   createMeal,
+  getAllMeals,
 };

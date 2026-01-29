@@ -4,6 +4,7 @@ import auth from "../../middleware/auth";
 
 const router = Router();
 
-router.post("/create-meal",auth(), mealController.createMeal);
+router.get("/", mealController.getAllMeals);
+router.post("/create-meal", auth(), mealController.createMeal);
 
 export const mealRouter = router;
