@@ -40,7 +40,47 @@ const getAllMeals = async (req: Request, res: Response) => {
   res.status(200).json({ success: true, data: result });
 };
 
+const getSingleMeal = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await mealService.getSingleMeal(id as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Meal fetched successfully!",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(404).json({
+      success: false,
+      message: error.message || "Opps data not found!",
+    });
+  }
+};
+
+const deleteMeal = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = (req as any).user.id;
+
+    const result = await mealService.deleteMeal(id as string, userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Meal deleted successfully!",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(403).json({
+      success: false,
+      message: error.message || "You are not authorized!",
+    });
+  }
+};
+
 export const mealController = {
   createMeal,
   getAllMeals,
+  getSingleMeal,
+  deleteMeal,
 };

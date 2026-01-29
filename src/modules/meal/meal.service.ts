@@ -48,7 +48,38 @@ const getAllMeals = async (categoryId?: string) => {
   });
 };
 
+const getSingleMeal = async (id: string) => {
+  const result = await prisma.meal.findUnique({
+    where: { id },
+    include: {
+      category: true,
+      provider: true
+    }
+  });
+  if (!result) throw new Error("Opps data not found!");
+  return result;
+};
+
+const deleteMeal = async (mealId: string, userId: string) => {
+  const meal = await prisma.meal.findUnique({
+    where: { id: mealId },
+    include: { provider: true }
+  });
+
+  if (!meal) throw new Error("Not available!");
+  
+  if (meal.provider.userId !== userId) {
+    throw new Error("You are not authorized!");
+  }
+
+  return await prisma.meal.delete({
+    where: { id: mealId }
+  });
+};
+
 export const mealService = {
   createMeal,
   getAllMeals,
+  deleteMeal,
+  getSingleMeal
 };
