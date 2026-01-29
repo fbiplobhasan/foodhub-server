@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum OrderStatus {
+  PLACED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  ONLINE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  name            String
+  password        String
+  role            Role             @default(CUSTOMER)
+  status          String           @default("ACTIVE")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  providerProfile ProviderProfile?
+  orders          Order[]
+  reviews         Review[]
+}
+
+model ProviderProfile {
+  id          String  @id @default(uuid())
+  userId      String  @unique
+  user        User    @relation(fields: [userId], references: [id])
+  storeName   String
+  description String?
+  address     String
+  meals       Meal[]
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String @unique
+  meals Meal[]
+}
+
+model Meal {
+  id          String          @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  image       String?
+  categoryId  String
+  category    Category        @relation(fields: [categoryId], references: [id])
+  providerId  String
+  provider    ProviderProfile @relation(fields: [providerId], references: [id])
+  reviews     Review[]
+  createdAt   DateTime        @default(now())
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  customerId      String
+  customer        User        @relation(fields: [customerId], references: [id])
+  totalAmount     Float
+  deliveryAddress String
+  status          OrderStatus @default(PLACED)
+
+  paymentMethod PaymentMethod @default(COD)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  items     Json
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  rating     Int      @default(5)
+  comment    String?
+  customerId String
+  customer   User     @relation(fields: [customerId], references: [id])
+  mealId     String
+  meal       Meal     @relation(fields: [mealId], references: [id])
+  createdAt  DateTime @default(now())
+}
