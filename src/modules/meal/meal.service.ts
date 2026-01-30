@@ -5,11 +5,12 @@ const createMeal = async (payload: any, userId: string) => {
   try {
     const providerProfile = await prisma.providerProfile.findUnique({
       where: {
-        userId,
+        userId: userId,
       },
     });
 
     if (!providerProfile) {
+      console.log("No profile found for User ID:", userId);
       throw new Error(
         "Provider profile not found. Please create a profile first.",
       );
@@ -38,12 +39,16 @@ const createMeal = async (payload: any, userId: string) => {
 };
 
 const getAllMeals = async (query: any) => {
-  const { categoryId, searchTerm, minPrice, maxPrice } = query;
+  const { categoryId, searchTerm, minPrice, maxPrice, dietaryType } = query;
 
   const where: Prisma.MealWhereInput = {};
 
   if (categoryId) {
     where.categoryId = categoryId;
+  }
+
+  if (dietaryType) {
+    where.dietaryType = dietaryType;
   }
 
   if (searchTerm) {
@@ -65,7 +70,7 @@ const getAllMeals = async (query: any) => {
     include: {
       category: true,
       provider: {
-        select: { storeName: true, address: true },
+        select: { id: true, storeName: true, address: true },
       },
     },
     orderBy: { createdAt: "desc" },

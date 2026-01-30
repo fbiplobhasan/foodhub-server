@@ -6,7 +6,7 @@ const router = Router();
 
 router.get("/", mealController.getAllMeals);
 
-router.post("/create-meal", auth(), mealController.createMeal);
+router.post("/create-meal", auth(UserRole.PROVIDER), mealController.createMeal);
 
 router.get("/:id", mealController.getSingleMeal);
 

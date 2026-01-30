@@ -1,12 +1,12 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./prisma"; //import from .prisma not create instance
+import { prisma } from "./prisma"; 
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql", // set "postgresql"
   }),
-  trustedOrigins:[process.env.APP_URL! as string],
+  trustedOrigins: [process.env.APP_URL! as string],
   user: {
     additionalFields: {
       role: {
@@ -17,6 +17,14 @@ export const auth = betterAuth({
       status: {
         type: "string",
         defaultValue: "ACTIVE",
+      },
+      phone: {
+        type: "string",
+        required: false,
+      },
+      address: {
+        type: "string",
+        required: false,
       },
     },
   },

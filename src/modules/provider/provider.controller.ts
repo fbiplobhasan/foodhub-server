@@ -27,6 +27,23 @@ const createProfile = async (req: Request, res: Response) => {
   }
 };
 
+const getAllProviders = async (req: Request, res: Response) => {
+  try {
+    const result = await providerService.getAllProviders();
+    res.status(200).json({
+      success: true,
+      message: "Providers fetched successfully!",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message || "Failed to fetch providers",
+    });
+  }
+};
+
 export const providerController = {
   createProfile,
+  getAllProviders,
 };

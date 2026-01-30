@@ -19,6 +19,24 @@ const createProfile = async (data: any, userId: string) => {
   });
 };
 
+const getAllProviders = async () => {
+  return await prisma.providerProfile.findMany({
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+      _count: {
+        select: { meals: true },
+      },
+    },
+  });
+};
+
 export const providerService = {
   createProfile,
+  getAllProviders,
 };

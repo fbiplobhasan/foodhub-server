@@ -13,7 +13,7 @@ datasource db {
   provider = "postgresql"
 }
 
- enum Role {
+enum Role {
   CUSTOMER
   PROVIDER
   ADMIN
@@ -65,6 +65,8 @@ model User {
   email           String
   emailVerified   Boolean          @default(false)
   image           String?
+  phone           String?
+  address         String?
   role            Role             @default(CUSTOMER)
   status          UserStatus       @default(ACTIVE)
   createdAt       DateTime         @default(now())
@@ -74,23 +76,31 @@ model User {
   providerProfile ProviderProfile?
   orders          Order[]
   reviews         Review[]
+  cart            Cart?
 
   @@unique([email])
   @@map("user")
 }
 
+enum DietaryPreference {
+  VEG
+  NON_VEG
+}
+
 model Meal {
-  id          String          @id @default(uuid())
+  id          String            @id @default(uuid())
   name        String
   description String
   price       Float
   image       String?
+  dietaryType DietaryPreference @default(NON_VEG)
   categoryId  String
-  category    Category        @relation(fields: [categoryId], references: [id])
+  category    Category          @relation(fields: [categoryId], references: [id])
   providerId  String
-  provider    ProviderProfile @relation(fields: [providerId], references: [id])
+  provider    ProviderProfile   @relation(fields: [providerId], references: [id])
   reviews     Review[]
-  createdAt   DateTime        @default(now())
+  createdAt   DateTime          @default(now())
+  cartItems   CartItem[]
 }
 
 model Order {
@@ -165,4 +175,24 @@ model Account {
 
   @@index([userId])
   @@map("account")
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id       String @id @default(uuid())
+  cartId   String
+  cart     Cart   @relation(fields: [cartId], references: [id])
+  mealId   String
+  meal     Meal   @relation(fields: [mealId], references: [id])
+  quantity Int    @default(1)
+
+  @@unique([cartId, mealId])
 }

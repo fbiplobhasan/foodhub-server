@@ -4,18 +4,23 @@ import auth, { UserRole } from "../../middleware/auth";
 
 const router = Router();
 
+router.get(
+  "/my-orders",
+  auth(UserRole.PROVIDER, UserRole.ADMIN),
+  orderController.getProviderOrders,
+);
+
+router.get(
+  "/provider-orders",
+  auth(UserRole.PROVIDER),
+  orderController.getMyOrders,
+);
+
 router.post(
   "/create-order",
   auth(UserRole.CUSTOMER),
   orderController.createOrder,
 );
-
-router.get(
-  "/",
-  auth(UserRole.PROVIDER, UserRole.ADMIN),
-  orderController.getProviderOrders,
-);
-router.get("/my-orders", auth(UserRole.CUSTOMER), orderController.getMyOrders);
 
 router.patch(
   "/:id",
