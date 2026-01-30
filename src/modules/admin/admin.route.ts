@@ -7,12 +7,7 @@ const router = express.Router();
 
 router.get("/get-all-users", auth(UserRole.ADMIN), AdminController.getAllUsers);
 
-router.get("/orders", auth(UserRole.ADMIN), AdminController.getAllOrders);
-
-router.post("/add-category", auth(UserRole.ADMIN), async (req, res) => {
-  const result = await prisma.category.create({ data: req.body });
-  res.json({ success: true, data: result });
-});
+router.get("/get-all-orders", auth(UserRole.ADMIN), AdminController.getAllOrders);
 
 router.patch(
   "/:userId",
@@ -20,9 +15,5 @@ router.patch(
   AdminController.updateUserStatus,
 );
 
-router.delete("/categories/:id", auth(UserRole.ADMIN), async (req, res) => {
-  await prisma.category.delete({ where: { id: req.params.id as string } });
-  res.json({ success: true, message: "Category deleted" });
-});
 
 export const adminRoutes = router;
