@@ -89,6 +89,24 @@ const getSingleMeal = async (id: string) => {
   return result;
 };
 
+const updateMeal = async (mealId: string, providerId: string, data: any) => {
+  const isOwner = await prisma.meal.findFirst({
+    where: {
+      id: mealId,
+      providerId: providerId,
+    },
+  });
+
+  if (!isOwner) {
+    throw new Error("You are not authorized to edit this meal!");
+  }
+
+  return await prisma.meal.update({
+    where: { id: mealId },
+    data: data,
+  });
+};
+
 const deleteMeal = async (mealId: string, userId: string) => {
   const meal = await prisma.meal.findUnique({
     where: { id: mealId },
@@ -111,4 +129,5 @@ export const mealService = {
   getAllMeals,
   deleteMeal,
   getSingleMeal,
+  updateMeal,
 };

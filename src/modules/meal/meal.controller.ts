@@ -36,11 +36,11 @@ const createMeal = async (req: Request, res: Response) => {
 
 const getAllMeals = async (req: Request, res: Response) => {
   try {
-    const result = await mealService.getAllMeals(req.query);    
-    res.status(200).json({ 
-      success: true, 
+    const result = await mealService.getAllMeals(req.query);
+    res.status(200).json({
+      success: true,
       message: "Meals fetched successfully",
-      data: result 
+      data: result,
     });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
@@ -62,6 +62,26 @@ const getSingleMeal = async (req: Request, res: Response) => {
       success: false,
       message: error.message || "Opps data not found!",
     });
+  }
+};
+
+const updateMeal = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const providerId = (req as any).user.id;
+    const result = await mealService.updateMeal(
+      id as string,
+      providerId,
+      req.body,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Meal updated successfully!",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -90,4 +110,5 @@ export const mealController = {
   getAllMeals,
   getSingleMeal,
   deleteMeal,
+  updateMeal,
 };

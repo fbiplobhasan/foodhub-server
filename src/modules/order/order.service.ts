@@ -73,8 +73,21 @@ const updateOrderStatus = async (
 
 const getProviderOrders = async (providerUserId: string) => {
   return await prisma.order.findMany({
+    where: {
+      items: {
+        array_contains: [{ providerId: providerUserId }],
+      },
+    },
+    include: {
+      customer: {
+        select: {
+          name: true,
+          email: true,
+          phone: true,
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
-    include: { customer: { select: { name: true, email: true } } },
   });
 };
 
