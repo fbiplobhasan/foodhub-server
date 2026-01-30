@@ -7,6 +7,7 @@ import { providerRoutes } from "./modules/provider/provider.route";
 import { categoryRoutes } from "./modules/category/category.route";
 import { orderRoutes } from "./modules/order/order.route";
 import { cartRoutes } from "./modules/cart/cart.route";
+import { reviewRoutes } from "./modules/review/review.route";
 
 const app = express();
 
@@ -30,6 +31,8 @@ app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/order", orderRoutes);
 
 app.use("/api/v1/cart", cartRoutes);
+
+app.use("/api/v1/review", reviewRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Food Hub API" });
