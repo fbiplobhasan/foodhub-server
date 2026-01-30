@@ -23,6 +23,7 @@ enum OrderStatus {
   PLACED
   PREPARING
   READY
+  COOKING
   DELIVERED
   CANCELLED
 }

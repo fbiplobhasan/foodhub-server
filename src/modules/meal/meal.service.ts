@@ -1,3 +1,4 @@
+import { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
 const createMeal = async (payload: any, userId: string) => {
@@ -36,15 +37,38 @@ const createMeal = async (payload: any, userId: string) => {
   }
 };
 
-const getAllMeals = async (categoryId?: string) => {
+const getAllMeals = async (query: any) => {
+  const { categoryId, searchTerm, minPrice, maxPrice } = query;
+
+  const where: Prisma.MealWhereInput = {};
+
+  if (categoryId) {
+    where.categoryId = categoryId;
+  }
+
+  if (searchTerm) {
+    where.OR = [
+      { name: { contains: searchTerm, mode: "insensitive" } },
+      { description: { contains: searchTerm, mode: "insensitive" } },
+    ];
+  }
+
+  if (minPrice || maxPrice) {
+    where.price = {
+      gte: minPrice ? parseFloat(minPrice) : undefined,
+      lte: maxPrice ? parseFloat(maxPrice) : undefined,
+    };
+  }
+
   return await prisma.meal.findMany({
-    where: categoryId ? { categoryId } : {},
+    where,
     include: {
       category: true,
       provider: {
         select: { storeName: true, address: true },
       },
     },
+    orderBy: { createdAt: "desc" },
   });
 };
 
@@ -53,8 +77,8 @@ const getSingleMeal = async (id: string) => {
     where: { id },
     include: {
       category: true,
-      provider: true
-    }
+      provider: true,
+    },
   });
   if (!result) throw new Error("Opps data not found!");
   return result;
@@ -63,17 +87,17 @@ const getSingleMeal = async (id: string) => {
 const deleteMeal = async (mealId: string, userId: string) => {
   const meal = await prisma.meal.findUnique({
     where: { id: mealId },
-    include: { provider: true }
+    include: { provider: true },
   });
 
   if (!meal) throw new Error("Not available!");
-  
+
   if (meal.provider.userId !== userId) {
     throw new Error("You are not authorized!");
   }
 
   return await prisma.meal.delete({
-    where: { id: mealId }
+    where: { id: mealId },
   });
 };
 
@@ -81,5 +105,5 @@ export const mealService = {
   createMeal,
   getAllMeals,
   deleteMeal,
-  getSingleMeal
+  getSingleMeal,
 };

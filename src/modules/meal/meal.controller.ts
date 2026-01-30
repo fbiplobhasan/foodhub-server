@@ -35,9 +35,16 @@ const createMeal = async (req: Request, res: Response) => {
 };
 
 const getAllMeals = async (req: Request, res: Response) => {
-  const { categoryId } = req.query;
-  const result = await mealService.getAllMeals(categoryId as string);
-  res.status(200).json({ success: true, data: result });
+  try {
+    const result = await mealService.getAllMeals(req.query);    
+    res.status(200).json({ 
+      success: true, 
+      message: "Meals fetched successfully",
+      data: result 
+    });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 };
 
 const getSingleMeal = async (req: Request, res: Response) => {

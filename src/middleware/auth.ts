@@ -4,7 +4,8 @@ import { auth as betterAuth } from "../lib/auth";
 
 export enum UserRole {
   ADMIN = "ADMIN",
-  CUSTOMER = "USER",
+  CUSTOMER = "CUSTOMER",
+  USER = "USER",
   PROVIDER = "PROVIDER"
 }
 
