@@ -53,9 +53,19 @@ const updateOrderStatus = async (
     throw new Error("Order not found!");
   }
 
+  const items = order.items as any[];
+  const isOwner = items.some(
+    (item) => item.providerId === providerId || item.mealId,
+  );
+
+  const paymentStatus = status === "DELIVERED" ? "PAID" : order.paymentStatus;
+
   const updatedOrder = await prisma.order.update({
     where: { id: orderId },
-    data: { status },
+    data: {
+      status,
+      paymentStatus,
+    },
   });
 
   return updatedOrder;
@@ -68,9 +78,50 @@ const getProviderOrders = async (providerUserId: string) => {
   });
 };
 
+const placeOrder = async (userId: string, deliveryAddress: string) => {
+  const cart = await prisma.cart.findUnique({
+    where: { userId },
+    include: { items: { include: { meal: true } } },
+  });
+
+  if (!cart || cart.items.length === 0) {
+    throw new Error("Cart is empty");
+  }
+
+  const totalAmount = cart.items.reduce((sum, item) => {
+    return sum + item.meal.price * item.quantity;
+  }, 0);
+
+  return await prisma.$transaction(async (tx) => {
+    const order = await tx.order.create({
+      data: {
+        customerId: userId,
+        totalAmount,
+        deliveryAddress,
+        status: "PLACED",
+        paymentMethod: "COD",
+        paymentStatus: "PENDING",
+        items: cart.items.map((item) => ({
+          mealId: item.mealId,
+          name: item.meal.name,
+          price: item.meal.price,
+          quantity: item.quantity,
+        })) as any,
+      },
+    });
+
+    await tx.cartItem.deleteMany({
+      where: { cartId: cart.id },
+    });
+
+    return order;
+  });
+};
+
 export const orderService = {
   createOrder,
   getMyOrders,
   updateOrderStatus,
   getProviderOrders,
+  placeOrder,
 };

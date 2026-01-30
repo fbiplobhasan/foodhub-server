@@ -17,6 +17,12 @@ router.get(
 );
 
 router.post(
+  "/place-order",
+  auth(UserRole.CUSTOMER),
+  orderController.placeOrder,
+);
+
+router.post(
   "/create-order",
   auth(UserRole.CUSTOMER),
   orderController.createOrder,

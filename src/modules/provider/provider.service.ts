@@ -1,3 +1,4 @@
+import { OrderStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 
 const createProfile = async (data: any, userId: string) => {
@@ -36,7 +37,36 @@ const getAllProviders = async () => {
   });
 };
 
+const getProviderOrders = async (providerId: string) => {
+  const providerMeals = await prisma.meal.findMany({
+    where: { providerId },
+    select: { id: true },
+  });
+
+  const mealIds = providerMeals.map((m) => m.id);
+
+  const allOrders = await prisma.order.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+
+  const filteredOrders = allOrders.filter((order: any) => {
+    const items = order.items as any[];
+    return items.some((item) => mealIds.includes(item.mealId));
+  });
+
+  return filteredOrders;
+};
+
+const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
+  return await prisma.order.update({
+    where: { id: orderId },
+    data: { status }
+  });
+}
+
 export const providerService = {
   createProfile,
   getAllProviders,
+  getProviderOrders,
+  updateOrderStatus
 };

@@ -33,7 +33,11 @@ const updateOrderStatus = async (req: Request, res: Response) => {
     const { status } = req.body;
     const providerId = (req as any).user.id;
 
-    const result = await orderService.updateOrderStatus(id as string, status, providerId);
+    const result = await orderService.updateOrderStatus(
+      id as string,
+      status,
+      providerId,
+    );
 
     res.status(200).json({
       success: true,
@@ -54,9 +58,33 @@ const getProviderOrders = async (req: Request, res: Response) => {
   }
 };
 
+const placeOrder = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id;
+    const { deliveryAddress } = req.body;
+
+    if (!deliveryAddress) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Address required." });
+    }
+
+    const result = await orderService.placeOrder(userId, deliveryAddress);
+
+    res.status(201).json({
+      success: true,
+      message: "Order successful.!",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const orderController = {
   createOrder,
   getMyOrders,
   updateOrderStatus,
   getProviderOrders,
+  placeOrder,
 };
