@@ -6,30 +6,34 @@ const createReview = async (
   rating: number,
   comment: string,
 ) => {
-  const hasOrdered = await prisma.order.findFirst({
+  const orders = await prisma.order.findMany({
     where: {
       customerId: userId,
       status: "DELIVERED",
-      items: {
-        array_contains: [{ mealId: mealId }],
-      },
     },
   });
 
-  if (!hasOrdered) {
-    throw new Error(
-      "You can only review meals you have successfully received (DELIVERED)!",
-    );
+  const hasPurchased = orders.some((order: any) =>
+    (order.items as any[]).some((item) => item.mealId === mealId),
+  );
+
+  if (!hasPurchased) {
+    throw new Error("You can only review meals you have received!");
   }
 
   return await prisma.review.create({
-    data: {
-      customerId: userId,
-      mealId,
-      rating,
-      comment,
-    },
+    data: { customerId: userId, mealId, rating, comment },
   });
 };
 
-export const ReviewService = { createReview };
+const getMealReviews = async (mealId: string) => {
+  return await prisma.review.findMany({
+    where: { mealId },
+    include: {
+      customer: { select: { name: true, image: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+};
+
+export const ReviewService = { createReview, getMealReviews };

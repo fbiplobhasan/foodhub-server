@@ -6,7 +6,12 @@ const createReview = async (req: Request, res: Response) => {
     const userId = (req as any).user.id;
     const { mealId, rating, comment } = req.body;
 
-    const result = await ReviewService.createReview(userId, mealId, rating, comment);
+    const result = await ReviewService.createReview(
+      userId,
+      mealId,
+      rating,
+      comment,
+    );
 
     res.status(201).json({
       success: true,
@@ -18,4 +23,14 @@ const createReview = async (req: Request, res: Response) => {
   }
 };
 
-export const ReviewController = { createReview };
+const getMealReviews = async (req: Request, res: Response) => {
+  try {
+    const { mealId } = req.params;
+    const result = await ReviewService.getMealReviews(mealId as string);
+    res.status(200).json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const ReviewController = { createReview, getMealReviews };

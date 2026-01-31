@@ -9,6 +9,8 @@ import { cartRoutes } from "./modules/cart/cart.route";
 import { reviewRoutes } from "./modules/review/review.route";
 import { userRoutes } from "./modules/user/user.route";
 import { adminRoutes } from "./modules/admin/admin.route";
+import notFound from "./middleware/not-found";
+import globalErrorHandler from "./middleware/globalErrorHandler";
 
 const app = express();
 
@@ -23,23 +25,26 @@ app.use(express.json());
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
+app.use("/api/meals", mealRouter); //* done
 
-app.use("/api/meals", mealRouter); //* done 
-
-app.use("/api/providers", providerRoutes);
+app.use("/api/providers", providerRoutes); //* done
 
 app.use("/api/orders", orderRoutes); //* done
 
-app.use("/api/cart", cartRoutes);  //* done
+app.use("/api/cart", cartRoutes); //* done
 
 app.use("/api/admin", adminRoutes); //* done
 
-app.use("/api/v1/user", userRoutes);
+app.use("/api/user", userRoutes);
 
-app.use("/api/v1/review", reviewRoutes);
+app.use("/api/review", reviewRoutes); //* done
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Food Hub API" });
 });
+
+app.use(notFound);
+
+app.use(globalErrorHandler);
 
 export default app;

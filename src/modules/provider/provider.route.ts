@@ -1,28 +1,27 @@
 import { Router } from "express";
 import { providerController } from "./provider.controller";
 import auth, { UserRole } from "../../middleware/auth";
-import { orderController } from "../order/order.controller";
 
 const router = Router();
 
 router.get("/", providerController.getAllProviders);
 
-router.get(
-  "/provider-orders",
-  auth(UserRole.PROVIDER),
-  orderController.getProviderOrders,
-);
-
 router.post(
   "/create-profile",
-  auth(UserRole.PROVIDER, UserRole.CUSTOMER, UserRole.ADMIN),
+  auth(UserRole.PROVIDER),
   providerController.createProfile,
 );
 
-router.patch(
-  "/:orderId/status",
+router.get(
+  "/orders",
   auth(UserRole.PROVIDER),
-  orderController.updateOrderStatus,
+  providerController.getProviderOrders,
+);
+
+router.patch(
+  "/update-profile",
+  auth(UserRole.PROVIDER),
+  providerController.updateProfile,
 );
 
 export const providerRoutes = router;

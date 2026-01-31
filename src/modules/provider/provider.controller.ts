@@ -47,10 +47,10 @@ const getAllProviders = async (req: Request, res: Response) => {
 
 const getProviderOrders = async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const userId = (req as any).user.id;
 
     const providerProfile = await prisma.providerProfile.findUnique({
-      where: { userId: user.id },
+      where: { userId },
     });
 
     if (!providerProfile) {
@@ -59,11 +59,11 @@ const getProviderOrders = async (req: Request, res: Response) => {
         .json({ success: false, message: "Provider profile not found" });
     }
 
-    const result = await orderService.getProviderOrders(providerProfile.id);
+    const result = await providerService.getProviderOrders(providerProfile.id);
 
     res.status(200).json({
       success: true,
-      message: "Provider orders fetched successfully",
+      message: "Orders fetched successfully",
       data: result,
     });
   } catch (error: any) {
@@ -71,40 +71,26 @@ const getProviderOrders = async (req: Request, res: Response) => {
   }
 };
 
-const updateOrderStatus = async (req: Request, res: Response) => {
+const updateProfile = async (req: Request, res: Response) => {
   try {
-    const { orderId } = req.params;
-    const { status } = req.body;
-    const user = (req as any).user;
-
-    const providerProfile = await prisma.providerProfile.findUnique({
-      where: { userId: user.id },
-    });
-
-    if (!providerProfile) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Provider profile not found" });
-    }
-
-    const result = await orderService.updateOrderStatus(
-      orderId as string,
-      status,
-      providerProfile.id,
-    );
+    const userId = (req as any).user.id;
+    const result = await providerService.updateProfile(userId, req.body);
 
     res.status(200).json({
       success: true,
-      message: `Order status updated to ${status}`,
+      message: "Provider profile updated successfully!",
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(400).json({
+      success: false,
+      message: error.message || "Failed to update profile",
+    });
   }
 };
 export const providerController = {
   createProfile,
   getAllProviders,
   getProviderOrders,
-  updateOrderStatus,
+  updateProfile,
 };

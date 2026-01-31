@@ -38,35 +38,40 @@ const getAllProviders = async () => {
 };
 
 const getProviderOrders = async (providerId: string) => {
-  const providerMeals = await prisma.meal.findMany({
-    where: { providerId },
-    select: { id: true },
-  });
-
-  const mealIds = providerMeals.map((m) => m.id);
-
-  const allOrders = await prisma.order.findMany({
+  const orders = await prisma.order.findMany({
+    include: {
+      customer: { select: { name: true, email: true, phone: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
-  const filteredOrders = allOrders.filter((order: any) => {
+  return orders.filter((order: any) => {
     const items = order.items as any[];
-    return items.some((item) => mealIds.includes(item.mealId));
+    return items.some((item) => item.providerId === providerId);
   });
-
-  return filteredOrders;
 };
 
-const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
-  return await prisma.order.update({
-    where: { id: orderId },
-    data: { status }
+const updateProfile = async (
+  userId: string,
+  data: Partial<{ storeName: string; description: string; address: string }>,
+) => {
+  const profile = await prisma.providerProfile.findUnique({
+    where: { userId },
   });
-}
+
+  if (!profile) {
+    throw new Error("Provider profile not found!");
+  }
+
+  return await prisma.providerProfile.update({
+    where: { userId },
+    data,
+  });
+};
 
 export const providerService = {
   createProfile,
   getAllProviders,
   getProviderOrders,
-  updateOrderStatus
+  updateProfile,
 };
