@@ -10,7 +10,6 @@ const createMeal = async (payload: any, userId: string) => {
     });
 
     if (!providerProfile) {
-      console.log("No profile found for User ID:", userId);
       throw new Error(
         "Provider profile not found. Please create a profile first.",
       );
@@ -23,10 +22,13 @@ const createMeal = async (payload: any, userId: string) => {
         image: payload.image,
         categoryId: payload.categoryId,
         providerId: providerProfile.id,
+        dietaryType: payload.dietaryType,
       },
       include: {
         category: true,
-        provider: true,
+        provider: {
+          select: { storeName: true, address: true },
+        },
       },
     });
     return result;
@@ -89,15 +91,19 @@ const getSingleMeal = async (id: string) => {
   return result;
 };
 
-const updateMeal = async (mealId: string, providerId: string, data: any) => {
-  const isOwner = await prisma.meal.findFirst({
+const updateMeal = async (mealId: string, userId: string, data: any) => {
+  const meal = await prisma.meal.findFirst({
     where: {
       id: mealId,
-      providerId: providerId,
     },
+    include: { provider: true },
   });
 
-  if (!isOwner) {
+  if (!meal) {
+    throw new Error("Meal not found!");
+  }
+
+  if (meal.provider.userId !== userId) {
     throw new Error("You are not authorized to edit this meal!");
   }
 

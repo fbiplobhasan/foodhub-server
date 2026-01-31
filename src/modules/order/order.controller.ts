@@ -81,10 +81,36 @@ const placeOrder = async (req: Request, res: Response) => {
   }
 };
 
+const getSingleOrder = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await orderService.getSingleOrder(id as string);
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found!",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Order details retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const orderController = {
   createOrder,
   getMyOrders,
   updateOrderStatus,
   getProviderOrders,
   placeOrder,
+  getSingleOrder
 };

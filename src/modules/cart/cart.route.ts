@@ -8,4 +8,10 @@ router.get("/", auth(UserRole.CUSTOMER), CartController.getMyCart);
 
 router.post("/add", auth(UserRole.CUSTOMER), CartController.addToCart);
 
+router.delete(
+  "/:mealId",
+  auth(UserRole.CUSTOMER),
+  CartController.removeCartItem,
+);
+
 export const cartRoutes = router;

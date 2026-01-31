@@ -1,19 +1,31 @@
 import express from "express";
 import { AdminController } from "./admin.controller";
 import auth, { UserRole } from "../../middleware/auth";
-import { prisma } from "../../lib/prisma";
 
 const router = express.Router();
 
-router.get("/get-all-users", auth(UserRole.ADMIN), AdminController.getAllUsers);
+router.get("/users", auth(UserRole.ADMIN), AdminController.getAllUsers);
 
-router.get("/get-all-orders", auth(UserRole.ADMIN), AdminController.getAllOrders);
+router.get("/orders", auth(UserRole.ADMIN), AdminController.getAllOrders);
+
+router.get("/categories", AdminController.getAllCategories);
+
+router.post(
+  "/categories",
+  auth(UserRole.ADMIN),
+  AdminController.createCategory,
+);
+
+router.delete(
+  "/categories/:id",
+  auth(UserRole.ADMIN),
+  AdminController.deleteCategory,
+);
 
 router.patch(
-  "/:userId",
+  "/users/:userId",
   auth(UserRole.ADMIN),
   AdminController.updateUserStatus,
 );
-
 
 export const adminRoutes = router;

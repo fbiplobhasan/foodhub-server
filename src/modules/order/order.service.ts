@@ -98,7 +98,7 @@ const placeOrder = async (userId: string, deliveryAddress: string) => {
   });
 
   if (!cart || cart.items.length === 0) {
-    throw new Error("Cart is empty");
+    throw new Error("Cart is empty! Please add meals before checkout.");
   }
 
   const totalAmount = cart.items.reduce((sum, item) => {
@@ -119,6 +119,7 @@ const placeOrder = async (userId: string, deliveryAddress: string) => {
           name: item.meal.name,
           price: item.meal.price,
           quantity: item.quantity,
+          providerId: item.meal.providerId,
         })) as any,
       },
     });
@@ -131,10 +132,28 @@ const placeOrder = async (userId: string, deliveryAddress: string) => {
   });
 };
 
+const getSingleOrder = async (orderId: string) => {
+  const result = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+    },
+    include: {
+      customer: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+  return result;
+};
+
 export const orderService = {
   createOrder,
   getMyOrders,
   updateOrderStatus,
   getProviderOrders,
   placeOrder,
+  getSingleOrder,
 };
